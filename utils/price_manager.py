@@ -16,6 +16,9 @@ class PriceManager:
         }
         self.data_dir = 'data'
         os.makedirs(self.data_dir, exist_ok=True)
+        self.last_price = None
+        self.current_price = None
+        self.update_interval = 30  # 30 seconds to avoid rate limits
 
     def fetch_historical_data(self):
         """
@@ -102,4 +105,23 @@ class PriceManager:
                 return False
             return True
         except:
+            return False
+
+    def get_price_change(self):
+        """Returns tuple of (price, is_increase)"""
+        if self.last_price is None or self.current_price is None:
+            return (self.current_price, None)
+        return (self.current_price, self.current_price > self.last_price)
+
+    def update_current_price(self):
+        """Updates current price and returns True if successful"""
+        try:
+            btc = yf.Ticker(self.symbol)
+            new_price = btc.history(period='1d', interval='1m').iloc[-1]['Close']
+
+            self.last_price = self.current_price
+            self.current_price = new_price
+            return True
+        except Exception as e:
+            print(f"Error updating price: {e}")
             return False

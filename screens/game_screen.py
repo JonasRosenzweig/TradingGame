@@ -67,7 +67,7 @@ class GameScreen:
         # Add the control buttons
         self._create_trading_controls()
 
-        # add controls buttons
+        # Add controls buttons
         self._create_control_buttons()
 
         timeframe_frame = tk.Frame(
@@ -88,6 +88,9 @@ class GameScreen:
                 width=6
             )
             btn.pack(side=tk.LEFT, padx=5)
+
+        # Add price display before chart
+        self._create_price_display()
 
         # Create chart frame with adjusted width for control panel
         chart_frame = tk.Frame(
@@ -205,7 +208,7 @@ class GameScreen:
         )
         order_frame.pack(fill='x', padx=1, pady=1)
 
-        tk.Button(order_frame, text="Create", **button_style).pack(pady=1)  # Shortened text
+        tk.Button(order_frame, text="Order", **button_style).pack(pady=1)  # Shortened text
 
     def _save_game(self):
         # Get the save slot from player data
@@ -262,3 +265,61 @@ class GameScreen:
         )
         quit_button.pack(side=tk.LEFT, padx=5)
 
+    def _create_price_display(self):
+        # Price display frame - back to left side
+        price_frame = tk.Frame(
+            self.frame,
+            bg=BACKGROUND_COLOR,
+            height=30
+        )
+        price_frame.place(x=20, y=70)  # Back to left position
+
+        # Label "BTC Price:"
+        tk.Label(
+            price_frame,
+            text="BTC Price:",
+            font=("Helvetica", 14, "bold"),
+            bg=BACKGROUND_COLOR,
+            fg=TEXT_COLOR
+        ).pack(side=tk.LEFT, padx=(0, 10))
+
+        # Price label
+        self.price_label = tk.Label(
+            price_frame,
+            text="Loading...",
+            font=("Helvetica", 14, "bold"),
+            bg=BACKGROUND_COLOR,
+            fg=TEXT_COLOR
+        )
+        self.price_label.pack(side=tk.LEFT)
+
+        # Arrow indicator
+        self.arrow_label = tk.Label(
+            price_frame,
+            text="",
+            font=("Helvetica", 14, "bold"),
+            bg=BACKGROUND_COLOR,
+            fg=TEXT_COLOR
+        )
+        self.arrow_label.pack(side=tk.LEFT, padx=5)
+
+        # Do initial price update
+        self._update_price_display()
+
+    def _update_price_display(self):
+        if self.price_manager.update_current_price():
+            price, is_increase = self.price_manager.get_price_change()
+
+            if price is not None:
+                # Format price with commas for thousands
+                formatted_price = f"${price:,.2f}"
+                self.price_label.config(text=formatted_price)
+
+                if is_increase is not None:
+                    if is_increase:
+                        self.arrow_label.config(text="↑", fg="#26a69a")  # Green arrow
+                    else:
+                        self.arrow_label.config(text="↓", fg="#ef5350")  # Red arrow
+
+        # Schedule next update
+        self.frame.after(self.price_manager.update_interval * 1000, self._update_price_display)
