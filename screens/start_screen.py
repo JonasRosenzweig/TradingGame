@@ -3,8 +3,9 @@ from utils.constants import *
 
 
 class StartScreen:
-    def __init__(self, root):
+    def __init__(self, root, game_instance):  # Add game_instance parameter
         self.root = root
+        self.game_instance = game_instance  # Store the reference
         self.frame = tk.Frame(
             root,
             bg=BACKGROUND_COLOR,
@@ -48,5 +49,6 @@ class StartScreen:
         self.frame.pack_forget()
 
     def _start_game(self):
-        # This will be implemented later when we add the game screen
-        print("Starting game...")
+        # Get reference to main game instance
+        game = self.root.winfo_toplevel()
+        self.game_instance.show_save_screen()
