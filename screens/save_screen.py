@@ -57,7 +57,6 @@ class SaveScreen:
         save_data = self.saves[f"save_{slot}"]
 
         if save_data["name"] is None:
-            # Empty save slot - ask for player name
             player_name = simpledialog.askstring(
                 "New Game",
                 "Enter your name:",
@@ -67,11 +66,9 @@ class SaveScreen:
             if player_name:
                 SaveManager.create_new_save(slot, player_name)
                 self.saves = SaveManager.load_saves()  # Refresh saves
-                self._update_button_texts()
-                # Start the game with the new save
+                # Remove the _update_button_texts call from here
                 self.game_instance.start_game(self.saves[f"save_{slot}"])
         else:
-            # Load existing save
             self.game_instance.start_game(save_data)
 
     def _update_button_texts(self):
@@ -85,7 +82,16 @@ class SaveScreen:
         # We'll implement this when we update the main game class
 
     def show(self):
-        self._update_button_texts()  # Refresh button texts when showing screen
+        # Reload saves and recreate buttons every time we show the screen
+        self.saves = SaveManager.load_saves()
+        self.frame.destroy()  # Destroy old frame
+        self.frame = tk.Frame(  # Create new frame
+            self.root,
+            bg=BACKGROUND_COLOR,
+            width=WINDOW_WIDTH,
+            height=WINDOW_HEIGHT
+        )
+        self.setup()  # Recreate all widgets
         self.frame.pack(fill="both", expand=True)
 
     def hide(self):
