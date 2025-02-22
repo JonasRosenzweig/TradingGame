@@ -31,7 +31,7 @@ class SaveManager:
         saves[f"save_{slot}"] = {
             "name": player_name,
             "data": {
-                "money": 1000,  # Starting money
+                "money": 100,  # Changed from 1000 to 100
                 # Add other initial game state here
             }
         }

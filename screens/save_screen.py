@@ -68,8 +68,11 @@ class SaveScreen:
                 SaveManager.create_new_save(slot, player_name)
                 self.saves = SaveManager.load_saves()  # Refresh saves
                 self._update_button_texts()
-                # Here we'll later add the transition to the game screen
-                print(f"Starting new game with player: {player_name}")
+                # Start the game with the new save
+                self.game_instance.start_game(self.saves[f"save_{slot}"])
+        else:
+            # Load existing save
+            self.game_instance.start_game(save_data)
 
     def _update_button_texts(self):
         for i, button in enumerate(self.save_buttons):

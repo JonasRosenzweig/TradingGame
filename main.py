@@ -1,6 +1,7 @@
 import tkinter as tk
 from screens.start_screen import StartScreen
 from screens.save_screen import SaveScreen
+from screens.game_screen import GameScreen
 from utils.constants import *
 
 
@@ -13,7 +14,8 @@ class TradingGame:
 
         # Initialize screens - pass self as game_instance
         self.start_screen = StartScreen(self.root, self)
-        self.save_screen = SaveScreen(self.root, self)  # Don't forget to update SaveScreen similarly
+        self.save_screen = SaveScreen(self.root, self)
+        self.game_screen = GameScreen(self.root, self)
 
         # Show start screen
         self.start_screen.setup()
@@ -27,6 +29,11 @@ class TradingGame:
     def show_start_screen(self):
         self.save_screen.hide()
         self.start_screen.show()
+
+    def start_game(self, save_data):
+        self.save_screen.hide()
+        self.game_screen.setup(save_data)
+        self.game_screen.show()
 
     def run(self):
         self.root.mainloop()
