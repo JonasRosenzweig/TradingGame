@@ -1,4 +1,3 @@
-# main.py
 import tkinter as tk
 from screens.start_screen import StartScreen
 from utils.constants import *

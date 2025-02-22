@@ -1,6 +1,5 @@
-# screens/start_screen.py
 import tkinter as tk
-from ..utils.constants import *
+from utils.constants import *
 
 
 class StartScreen:
