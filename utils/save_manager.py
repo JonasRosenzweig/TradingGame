@@ -30,9 +30,16 @@ class SaveManager:
         saves = SaveManager.load_saves()
         saves[f"save_{slot}"] = {
             "name": player_name,
+            "slot": slot,  # Add this line
             "data": {
-                "money": 100,  # Changed from 1000 to 100
+                "money": 100,
                 # Add other initial game state here
             }
         }
+        SaveManager.save_data(saves)
+
+    @staticmethod
+    def update_save(slot, save_data):
+        saves = SaveManager.load_saves()
+        saves[f"save_{slot}"] = save_data
         SaveManager.save_data(saves)
