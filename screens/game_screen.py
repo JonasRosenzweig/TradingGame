@@ -2,6 +2,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from utils.constants import *
+from utils.constants import *
 from utils.save_manager import SaveManager
 from utils.chart_manager import ChartManager
 from utils.price_manager import PriceManager
@@ -53,18 +54,20 @@ class GameScreen:
         )
         self.account_label.pack(anchor="w")
 
-        # Main trading area (empty box for now)
-        trading_frame = tk.Frame(
+        # Create chart frame
+        chart_frame = tk.Frame(
             self.frame,
             bg="white",
-            width=WINDOW_WIDTH - 40,  # 20px padding on each side
-            height=WINDOW_HEIGHT - 100  # Space for top info
+            width=WINDOW_WIDTH - CONTROL_PANEL_WIDTH - 40,
+            height=WINDOW_HEIGHT - 150
         )
-        trading_frame.place(x=20, y=80)
-        # Prevent frame from shrinking
-        trading_frame.pack_propagate(False)
+        chart_frame.place(x=20, y=100)
+        chart_frame.pack_propagate(False)
 
         # Add the control buttons
+        self._create_trading_controls()
+
+        # add controls buttons
         self._create_control_buttons()
 
         timeframe_frame = tk.Frame(
@@ -86,15 +89,18 @@ class GameScreen:
             )
             btn.pack(side=tk.LEFT, padx=5)
 
-        # Create chart frame
+        # Create chart frame with adjusted width for control panel
         chart_frame = tk.Frame(
             self.frame,
             bg="white",
-            width=WINDOW_WIDTH - 40,
+            width=WINDOW_WIDTH - CONTROL_PANEL_WIDTH - 40,  # Adjusted width calculation
             height=WINDOW_HEIGHT - 150
         )
         chart_frame.place(x=20, y=100)
         chart_frame.pack_propagate(False)
+
+        # Create trading controls
+        self._create_trading_controls()
 
         # Initialize price data and chart
         self.price_manager.fetch_historical_data()
@@ -128,6 +134,96 @@ class GameScreen:
 
     def update_account_value(self, new_value):
         self.account_label.config(text=f"Account: ${new_value:.2f}")
+
+    def _create_trading_controls(self):
+        # Control panel frame on the right
+        control_panel = tk.Frame(
+            self.frame,
+            bg=BACKGROUND_COLOR,
+            width=CONTROL_PANEL_WIDTH,
+            height=WINDOW_HEIGHT - 150
+        )
+        control_panel.place(x=WINDOW_WIDTH - CONTROL_PANEL_WIDTH - 20, y=100)
+        control_panel.pack_propagate(False)
+
+        # Style configuration for buttons
+        button_style = {
+            'width': 6,  # Reduced width further
+            'font': ('Helvetica', 8),  # Smaller font
+            'pady': 2
+        }
+
+        # Spot trading section
+        spot_frame = tk.LabelFrame(
+            control_panel,
+            text="Spot",  # Shortened labels
+            bg=BACKGROUND_COLOR,
+            fg=TEXT_COLOR,
+            padx=2,
+            pady=2
+        )
+        spot_frame.pack(fill='x', padx=1, pady=1)
+
+        tk.Button(spot_frame, text="Buy", **button_style).pack(pady=1)
+        tk.Button(spot_frame, text="Sell", **button_style).pack(pady=1)
+
+        # Margin trading section
+        margin_frame = tk.LabelFrame(
+            control_panel,
+            text="Margin",
+            bg=BACKGROUND_COLOR,
+            fg=TEXT_COLOR,
+            padx=2,
+            pady=2
+        )
+        margin_frame.pack(fill='x', padx=1, pady=1)
+
+        tk.Button(margin_frame, text="1x", **button_style).pack(pady=1)  # Shortened text
+
+        # Limit orders section
+        limit_frame = tk.LabelFrame(
+            control_panel,
+            text="Limit",
+            bg=BACKGROUND_COLOR,
+            fg=TEXT_COLOR,
+            padx=2,
+            pady=2
+        )
+        limit_frame.pack(fill='x', padx=1, pady=1)
+
+        tk.Button(limit_frame, text="Buy", **button_style).pack(pady=1)  # Shortened text
+        tk.Button(limit_frame, text="Sell", **button_style).pack(pady=1)  # Shortened text
+
+        # Order creator section
+        order_frame = tk.LabelFrame(
+            control_panel,
+            text="Create",
+            bg=BACKGROUND_COLOR,
+            fg=TEXT_COLOR,
+            padx=2,
+            pady=2
+        )
+        order_frame.pack(fill='x', padx=1, pady=1)
+
+        tk.Button(order_frame, text="Create", **button_style).pack(pady=1)  # Shortened text
+
+    def _save_game(self):
+        # Get the save slot from player data
+        save_slot = self.player_data.get('slot')
+        if save_slot:
+            SaveManager.update_save(save_slot, self.player_data)
+            # Maybe add a small popup to confirm save
+            tk.messagebox.showinfo("Success", "Game saved successfully!")
+
+    def _return_to_menu(self):
+        if tk.messagebox.askyesno("Return to Menu", "Are you sure? Don't forget to save your progress!"):
+            self.hide()
+            self.game_instance.show_start_screen()
+
+    def _quit_game(self):
+        if tk.messagebox.askyesno("Quit Game", "Save and quit?"):
+            self._save_game()
+            self.root.quit()
 
     def _create_control_buttons(self):
         # Control buttons frame (top right)
@@ -166,20 +262,3 @@ class GameScreen:
         )
         quit_button.pack(side=tk.LEFT, padx=5)
 
-    def _save_game(self):
-        # Get the save slot from player data
-        save_slot = self.player_data.get('slot')
-        if save_slot:
-            SaveManager.update_save(save_slot, self.player_data)
-            # Maybe add a small popup to confirm save
-            tk.messagebox.showinfo("Success", "Game saved successfully!")
-
-    def _return_to_menu(self):
-        if tk.messagebox.askyesno("Return to Menu", "Are you sure? Don't forget to save your progress!"):
-            self.hide()
-            self.game_instance.show_start_screen()
-
-    def _quit_game(self):
-        if tk.messagebox.askyesno("Quit Game", "Save and quit?"):
-            self._save_game()
-            self.root.quit()
